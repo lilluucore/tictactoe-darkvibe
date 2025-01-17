@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>アニメクレベティックナリ</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/styles.css}">
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'DotGothic16', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .heart {
+            color: #ff69b4;
+            font-size: 2em;
+        }
+        .ascii-art {
+            white-space: pre;
+            font-family: monospace;
+            margin-bottom: 20px;
+        }
+        table {
+            margin-top: 20px;
+        }
+        button {
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-family: 'DotGothic16', sans-serif;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        .pixel-button {
+            font-family: 'DotGothic16', sans-serif;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            width: 200px;
+        }
+        .pixel-button:hover {
+            background-color: #555;
+        }
+        .grayscale {
+            filter: grayscale(100%);
+        }
+        .quote {
+            font-style: italic;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        .reset-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-family: 'DotGothic16', sans-serif;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 250px;
+        }
+        .reset-button:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+<button class="reset-button" onclick="window.location.href='/reset-game'">ゲームをリセット</button>
+<div class="header">
+    <h1>がんばって！アニメクレベティックナリ</h1>
+    <div>生命: <span id="hearts" th:utext="${'❤'.repeat(game.lives)}"></span></div>
+    <div>現在のプレイヤー: X</div>
+</div>
+<pre class="ascii-art" id="asciiArt" th:utext="'
+⣿⣿⢿⢿⣿⣿⣿⣇⠹⣿⢻⣿⣿⣿⣷⣿⣿⡿⣻⣿⣿⣿⣿⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣿⣿⣿⣿⣿⠻⣷⢩⣤⡄⠀⠀⠀⠀⠀⣀
+⢿⣿⣿⣄⢿⣿⣿⣿⣇⠙⣼⣿⠿⣿⣿⣿⡷⣱⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣽⣿⣿⣿⣿⣿⣿⣿⣦⣴⣶⣾⣿⡿⠀⠀⠀⠀⠞⠋
+⠻⣿⣿⣿⡆⢿⣿⣿⣿⣀⣿⣯⣾⣿⡿⡿⣱⣿⣿⣿⡿⢿⣿⣿⣿⣿⣿⣿⣿⣿⡾⣿⣿⣯⣶⣿⣿⣿⣿⣿⣷⣿⣿⣿⣋⡁⠀⠀⠀⢠⣶⣿
+⣓⡘⢿⣿⣿⣷⡎⣍⢿⣷⣿⣿⣿⣿⣿⣧⣿⣿⣿⡏⣾⣿⣿⣿⣿⣿⣿⣿⢏⣽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣴⣿⣿⣿⣿
+⣶⣯⣤⡹⠿⣿⣿⣼⣷⡟⢿⣿⣿⣿⣿⣿⣿⣿⣿⣾⣿⣿⣿⣿⣾⣿⣿⣣⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⡿⣿⣿⣦⣄⣉⠛⠻⡇⠸⣿⣿⣿⡏⢹⠿⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⣿⣿⣛⣻⣽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⡿⣍⣿⣿⡋⢿⣿⣿⡄⠙⠄⢹⣿⣇⠃⣰⣾⣿⣿⣿⣿⣿⣿⣿⣿⣠⣭⣿⣿⣿⣷⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣷⣶⣭⣻⣾⣶⡌⡿⠁⢰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⠉⠉⠉⠉⠉⠙⠛⠉⠀⠹⣻⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣄⣀⡉⢉⣉⣉⠉⠛⠻⠟⠿⠃⠀⣼⠸⣣⠿⣿⣿⢿⣿⣿⠇⢙⣛⣫⣭⣽⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣟⡿⣷⡀⠸⣿⣿⣿⣦⠀⠰⠂⣾⠟⠀⣠⣶⣿⣿⡿⡿⣷⣾⣿⣿⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿
+⠻⣿⣯⢿⣆⠙⢿⣿⡿⠀⠀⠀⠀⣠⣶⣿⣿⣿⡿⠃⣼⠿⠛⣛⣙⣛⠁⠀⠀⠀⠀⠀⠀⠀⣐⣀⠀⠀⠀⠀⠀⠀⠀⠈⣿⣿⣿⣿⣿⣿⣿⣿
+⣄⠉⠻⣾⣿⣆⠈⢻⠇⠀⠀⢀⡆⢛⣽⡿⠛⠿⠇⠈⣠⣴⣿⣿⣿⣿⠀⠀⢀⢸⣱⡀⠀⠀⡟⠿⠷⢄⡀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿
+⣶⣦⡀⠀⠛⢿⡄⠀⠀⠀⠀⣸⠁⣾⠋⠀⣠⣴⣶⣿⣶⡿⡿⣿⣿⣿⠀⠀⢸⠟⠻⢿⣷⣷⣧⡖⠀⠂⡁⠀⠰⠀⣸⠀⢸⣿⣿⣿⣿⣿⣿⡿
+⣿⣽⡻⢒⢄⠀⠱⠀⠀⠀⠀⠃⠀⠁⠀⠘⠿⣿⣿⡿⢋⣸⣽⣯⣳⣿⡷⡀⠠⣰⣀⣸⣿⣿⣿⣷⣥⣵⡇⠀⣠⣲⣿⠀⢸⣿⣿⣿⣿⡟⣫⣴
+⣿⣿⣿⣿⡆⡁⠀⠀⠀⠀⠀⠀⠀⣠⣾⣿⣶⣤⣴⣶⣾⣿⣿⣿⣿⣿⣿⣷⣄⠘⣿⣿⣿⣿⣿⣿⣿⣿⠇⢠⣸⣿⡿⣠⣿⣿⣿⣿⣿⣷⣿⣿
+⣿⣿⣿⣿⣿⡏⠀⠀⠀⠀⠀⢀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⢹⡿⣿⣿⣿⣿⡿⠋⠀⠸⠋⠏⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣜⣿⣿⣿⣯⣷⡷⠀⠀⠀⠀⠀⠀⠸⡿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⣠⠁⠀⠀⠀⠀⠀⠙⢝⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⠁⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠀⠋⠀⠀⠀⠀⠀⠀⠀⠀⠘⢿⣿⣿⣿⣿
+⣛⣟⣿⣿⠏⠀⠀⠀⠀⠀⠘⠽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣿⣿⣿⣿
+⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠈⠪⠙⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢻⣿⣿⣿⣿⣽⡳⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⠿⠿⠿
+⣐⣠⣶⣔⢶⣤⠤⣔⡶⣐⣍⣸⣾⣟⣭⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣭⣀⣉⣐⣋⣉⣉⠻⣿⣶⣤⡤⠒⠛⡶⢦⣤⣀⠀⠀⠀⠀⢿⣿⣶
+⠠⠆⣬⢠⣵⣮⣽⣿⣿⢿⣿⣿⣿⣿⣿⣿⣿⢿⣿⣿⣿⣿⣿⣿⢻⣿⣿⣿⡏⣿⣿⣿⣿⣿⣿⣮⡻⣿⣿⣶⣿⣿⣧⠊⠙⠃⠀⠀⠀⠈⠻⣿
+⣤⣶⣶⣿⣟⣿⣿⣿⣾⣿⣿⣿⣿⣿⣿⢟⣵⣿⣯⣭⣭⣭⣭⡍⣭⣭⣭⣿⣯⢩⣭⣭⣭⣭⣽⣿⣷⣍⠻⣿⣿⣿⡿⠀⠀⠀⠀⠀⠀⠀⠀⠘
+⣿⡿⣟⣮⣷⣿⣿⣿⣿⣿⣿⣿⣿⢟⣵⣿⡿⠿⠿⠿⠿⠿⠿⠸⠿⠿⠿⠿⠿⠸⠿⠿⠿⠿⠿⠿⢿⣿⣷⡄⠹⣛⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⣥⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⣵⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⣿⣿⣿⣿⣿⣿⡇⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡈⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠉⠙⠛⠻⢿⣿⣿⣿⠿⣵⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣸⣿⣿⣿⣿⣿⣿⣧⣹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠈⠛⠋⠈⠙⠛⠛⠿⠿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠿⠿⠛⠛⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣴⣶⣶⣶⣿⣶⣤⣤⣶⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠠⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣤⣦⣶⣷⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠃⠀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠹⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+'"></pre>
+<div id="asciiMessage" th:utext="${insults[0]}"></div>
+<div id="message" th:utext="${game.message}"></div>
+<div id="quote" class="quote" th:text="${game.quotes[0]}"></div>
+<table>
+    <tr th:each="row : ${game.board}">
+        <td th:each="cell : ${row}">
+            <button th:text="${cell == 0} ? '' : ${cell}" th:onclick="|makeMove(${rowStat.index}, ${cellStat.index})|" th:disabled="${game.isGameOver()}"></button>
+        </td>
+    </tr>
+</table>
+<div th:if="${game.isGameOver()}">
+    <div th:if="${game.lives > 0}">
+        <button class="pixel-button" onclick="window.location.href='/new-game'">もう一度プレイする</button>
+    </div>
+    <div th:if="${game.lives == 0}">
+        <div id="quote" class="quote" th:text="${game.quotes[0]}"></div>
+    </div>
+</div>
+<script th:src="@{/scripts.js}"></script>
+</body>
+</html>
